@@ -4,8 +4,9 @@
  * @author: zl
  */
 
-#include "utils.h"
 #include "config.h"
+#include "utils.h"
+#include "convertor.h"
 
 
 using boost::python::object;
@@ -127,4 +128,6 @@ void export_misc()
 	scope().attr("FLT_MAXFLOAT") = b2_maxFloat;
 	scope().attr("FLT_EPSILON") = b2_epsilon;
 	scope().attr("PI") = b2_pi;
+
+	b2Color_from_seq_convertor();
 }

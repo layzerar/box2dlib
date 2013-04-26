@@ -99,7 +99,7 @@ struct b2vec2_from_seq_convertor {
 	}
 
 	static void* convertible(PyObject* obj_ptr) {
-		if (!PySequence_Check(obj_ptr))
+		if (!PySequence_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr, "__len__"))
 			return 0;
 		if (PySequence_Size(obj_ptr) != 2)
 			return 0;
@@ -128,7 +128,7 @@ struct b2vec3_from_seq_convertor {
 	}
 
 	static void* convertible(PyObject* obj_ptr) {
-		if (!PySequence_Check(obj_ptr))
+		if (!PySequence_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr, "__len__"))
 			return 0;
 		if (PySequence_Size(obj_ptr) != 3)
 			return 0;
@@ -148,6 +148,36 @@ struct b2vec3_from_seq_convertor {
 		v3->y = extract<float32>(PySequence_GetItem(obj_ptr, 1));
 		v3->z = extract<float32>(PySequence_GetItem(obj_ptr, 2));
 		data->convertible = storage;
+	}
+};
+
+struct b2Color_from_seq_convertor {
+	b2Color_from_seq_convertor() {
+		using boost::python::type_id;
+		converter::registry::push_back(&convertible, &construct, type_id<b2Color>());
+	}
+
+	static void* convertible(PyObject* obj_ptr) {
+		if (!PySequence_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr, "__len__"))
+			return 0;
+		if (PySequence_Size(obj_ptr) != 3)
+			return 0;
+		return obj_ptr;
+	}
+
+	static void construct(PyObject* obj_ptr,
+		converter::rvalue_from_python_stage1_data* data) {
+			using boost::python::extract;
+			b2Assert(PySequence_Size(obj_ptr) == 3);
+
+			void* storage = ((converter::rvalue_from_python_storage<b2Color>*) (data))->storage.bytes;
+			new (storage) b2Color;
+			b2Color* c3 = (b2Color*) storage;
+
+			c3->r = extract<float32>(PySequence_GetItem(obj_ptr, 0));
+			c3->g = extract<float32>(PySequence_GetItem(obj_ptr, 1));
+			c3->b = extract<float32>(PySequence_GetItem(obj_ptr, 2));
+			data->convertible = storage;
 	}
 };
 
