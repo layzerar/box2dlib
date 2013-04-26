@@ -199,6 +199,6 @@ void export_contact()
 
 	def("b2GetPointStates", b2GetPointStates_W);
 
-	to_python_converter<b2ContactList, vector_to_list_converter<b2Contact*> >();
+	to_python_converter<b2ContactList, vector_to_list_ref_converter<b2Contact*> >();
 }
 

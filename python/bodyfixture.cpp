@@ -110,7 +110,7 @@ static void export_fixture()
 			&b2Fixture::SetFilterData)
 	;
 
-	to_python_converter<b2FixtureList, vector_to_list_converter<b2Fixture*> >();
+	to_python_converter<b2FixtureList, vector_to_list_ref_converter<b2Fixture*> >();
 }
 
 
@@ -295,9 +295,9 @@ static void export_body()
 		.def("IsActive", &b2Body::IsActive)
 		.def("SetFixedRotation", &b2Body::SetFixedRotation)
 		.def("IsFixedRotation", &b2Body::IsFixedRotation)
-		.def("GetFixtureList", b2Body_GetFixtureList, with_custodian_and_ward_postcall<0, 1>())
-		.def("GetJointList", b2Body_GetJointList, with_custodian_and_ward_postcall<0, 1>())
-		.def("GetContactList", b2Body_GetContactList, with_custodian_and_ward_postcall<0, 1>())
+		.def("GetFixtureList", b2Body_GetFixtureList)
+		.def("GetJointList", b2Body_GetJointList)
+		.def("GetContactList", b2Body_GetContactList)
 		.def("GetWorld", b2Body_GetWorld)
 		.def("GetUserData", b2Body_GetUserData)
 		.def("SetUserData", b2Body_SetUserData)
@@ -323,7 +323,7 @@ static void export_body()
 		.add_property("userData", b2Body_GetUserData, b2Body_SetUserData)
 	;
 
-	to_python_converter<b2BodyList, vector_to_list_converter<b2Body*> >();
+	to_python_converter<b2BodyList, vector_to_list_ref_converter<b2Body*> >();
 }
 
 

@@ -17,8 +17,12 @@ namespace converter = boost::python::converter;
 template<class T>
 struct list_to_list_converter {
 	static PyObject* convert(const std::list<T>& v) {
-		using namespace boost::python;
-		list pylist; FOREACH(const T& e, v) pylist.append(e);
+		using boost::python::list;
+		using boost::python::incref;
+
+		list pylist;
+		FOREACH(const T& e, v)
+			pylist.append(e);
 		return incref(pylist.ptr());
 	}
 };
@@ -26,8 +30,38 @@ struct list_to_list_converter {
 template<class T>
 struct vector_to_list_converter {
 	static PyObject* convert(const std::vector<T>& v) {
-		using namespace boost::python;
-		list pylist; FOREACH(const T& e, v) pylist.append(e);
+		using boost::python::list;
+		using boost::python::incref;
+
+		list pylist;
+		FOREACH(const T& e, v)
+			pylist.append(e);
+		return incref(pylist.ptr());
+	}
+};
+
+template<class T>
+struct list_to_list_ref_converter {
+	static PyObject* convert(const std::list<T>& v) {
+		using boost::python::list;
+		using boost::python::incref;
+
+		list pylist;
+		FOREACH(const T& e, v)
+			pylist.append(boost::ref(e));
+		return incref(pylist.ptr());
+	}
+};
+
+template<class T>
+struct vector_to_list_ref_converter {
+	static PyObject* convert(const std::vector<T>& v) {
+		using boost::python::list;
+		using boost::python::incref;
+
+		list pylist;
+		FOREACH(const T& e, v)
+			pylist.append(boost::ref(e));
 		return incref(pylist.ptr());
 	}
 };
@@ -51,7 +85,7 @@ struct list_from_seq_converter {
 		void* storage = ((converter::rvalue_from_python_storage<std::list<T> >*)(data))->storage.bytes;
 		new (storage) std::list<T>();
 		std::vector<T>* v = (std::list<T>*)(storage);
-		int vlen = PySequence_Size(obj_ptr);
+		Py_ssize_t vlen = PySequence_Size(obj_ptr);
 		if(vlen < 0)
 			abort();
 		v->reserve(vlen);
@@ -81,7 +115,7 @@ struct vector_from_seq_converter {
 		void* storage = ((converter::rvalue_from_python_storage<std::vector<T> >*)(data))->storage.bytes;
 		new (storage) std::vector<T>();
 		std::vector<T>* v = (std::vector<T>*)(storage);
-		int vlen = PySequence_Size(obj_ptr);
+		Py_ssize_t vlen = PySequence_Size(obj_ptr);
 		if(vlen < 0)
 			abort();
 		v->reserve(vlen);
