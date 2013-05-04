@@ -4,13 +4,9 @@
  * @author: zl
  */
 
-#include "utils.h"
 #include "config.h"
-#include <memory>
-#include <boost/scoped_array.hpp>
-
-using boost::python::object;
-typedef boost::scoped_array<b2Vec2> b2Vec2ArrayRef;
+#include "containers.h"
+#include <algorithm>
 
 
 /*
@@ -25,143 +21,98 @@ void (b2PolygonShape::*b2PolygonShape_SetAsBox4)(float32 hx, float32 hy, const b
  * extend functions
  */
 
-object b2PolygonShape_GetVertices(b2PolygonShape& self)
+b2Vec2List b2PolygonShape_GetVertices(b2PolygonShape& self)
 {
-	return ArrayToList(self.m_vertices, self.m_count, b2_maxPolygonVertices);
+	int32 size = std::max(0, std::min(b2_maxPolygonVertices, self.m_count));
+	return b2Vec2List(self.m_vertices, self.m_vertices + size);
 }
 
-object b2PolygonShape_GetNormals(b2PolygonShape& self)
+b2Vec2List b2PolygonShape_GetNormals(b2PolygonShape& self)
 {
-	return ArrayToList(self.m_normals, self.m_count, b2_maxPolygonVertices);
+	int32 size = std::max(0, std::min(b2_maxPolygonVertices, self.m_count));
+	return b2Vec2List(self.m_normals, self.m_normals + size);
 }
 
-object b2EdgeShape_GetVertices(b2EdgeShape& self)
+b2Vec2List b2EdgeShape_GetVertices(b2EdgeShape& self)
 {
-	object vertices;
-
 	if (self.m_hasVertex3)
 	{
-		vertices = CreateList(4);
+		b2Vec2List vertices(4);
 		vertices[0] = self.m_vertex0;
 		vertices[1] = self.m_vertex1;
 		vertices[2] = self.m_vertex2;
 		vertices[3] = self.m_vertex3;
+		return vertices;
 	}
 	else if (self.m_hasVertex0)
 	{
-		vertices = CreateList(3);
+		b2Vec2List vertices(3);
 		vertices[0] = self.m_vertex0;
 		vertices[1] = self.m_vertex1;
 		vertices[2] = self.m_vertex2;
+		return vertices;
 	}
 	else
 	{
-		vertices = CreateList(2);
+		b2Vec2List vertices(2);
 		vertices[0] = self.m_vertex1;
 		vertices[1] = self.m_vertex2;
-	}
-	return vertices;
-}
-
-object b2ChainShape_GetVertices(b2ChainShape& self)
-{
-	return ArrayToList(self.m_vertices, self.m_count, self.m_count);
-}
-
-void b2PolygonShape_Set(b2PolygonShape& self, object vertices)
-{
-	using namespace boost::python;
-
-	int32 count;
-	b2Vec2 cvertices[b2_maxPolygonVertices];
-
-	b2Assert(3 <= len(vertices) && len(vertices) <= b2_maxPolygonVertices);
-	count = (int32)ListToArray(cvertices, vertices, b2_maxPolygonVertices);
-
-	self.Set(cvertices, count);
-}
-
-
-void b2PolygonShape_SetAsBox(b2PolygonShape& self, object box)
-{
-	using boost::python::extract;
-
-	b2Assert(len(box) == 2 || len(box) == 4);
-	switch(len(box))
-	{
-	case 2:
-		self.SetAsBox(extract<float32>(box[0]), extract<float32>(box[1]));
-		break;
-	case 4:
-		self.SetAsBox(extract<float32>(box[0]),
-			extract<float32>(box[1]), extract<b2Vec2>(box[2]), extract<float32>(box[3]));
-		break;
+		return vertices;
 	}
 }
 
-
-void b2EdgeShape_Set(b2EdgeShape& self, object vertices)
+b2Vec2List b2ChainShape_GetVertices(b2ChainShape& self)
 {
-	using namespace boost::python;
+	return b2Vec2List(self.m_vertices,
+		self.m_vertices + std::max(0, self.m_count));
+}
 
-	int32 count;
-	b2Vec2 cvertices[4];
+void b2PolygonShape_Set(b2PolygonShape& self, const b2Vec2List& vertices)
+{
+	b2Assert(vertices.size() >= 3 && vertices.size() <= b2_maxPolygonVertices);
 
-	b2Assert(2 <= len(vertices) && len(vertices) <= 4);
-	count = (int32)ListToArray(cvertices, vertices, 4);
-	switch(count)
+	self.Set(&vertices[0], (int32)vertices.size());
+}
+
+
+void b2EdgeShape_Set(b2EdgeShape& self, const b2Vec2List& vertices)
+{
+	b2Assert(vertices.size() >= 2 && vertices.size() <= 4);
+	switch(vertices.size())
 	{
 	case 4:
-		self.m_vertex0 = cvertices[0];
-		self.m_vertex1 = cvertices[1];
-		self.m_vertex2 = cvertices[2];
-		self.m_vertex3 = cvertices[3];
+		self.m_vertex0 = vertices[0];
+		self.m_vertex1 = vertices[1];
+		self.m_vertex2 = vertices[2];
+		self.m_vertex3 = vertices[3];
 		self.m_hasVertex0 = true;
 		self.m_hasVertex3 = true;
 		break;
 	case 3:
-		self.m_vertex0 = cvertices[0];
-		self.m_vertex1 = cvertices[1];
-		self.m_vertex2 = cvertices[2];
+		self.m_vertex0 = vertices[0];
+		self.m_vertex1 = vertices[1];
+		self.m_vertex2 = vertices[2];
 		self.m_hasVertex0 = true;
 		self.m_hasVertex3 = false;
 		break;
 	case 2:
-		self.Set(cvertices[0], cvertices[1]);
+		self.Set(vertices[0], vertices[1]);
 		break;
 	}
 }
 
 
-void b2ChainShape_CreateLoop(b2ChainShape& self, object vertices)
+void b2ChainShape_CreateLoop(b2ChainShape& self, const b2Vec2List& vertices)
 {
-	using namespace boost::python;
-
-	int32 count;
-	b2Vec2ArrayRef cvertices;
-
-	count = (int32)len(vertices);
-	b2Assert(len(vertices) >= 3);
-	cvertices.reset(new b2Vec2[count]);
-
-	ListToArray(cvertices.get(), vertices, count);
-	self.CreateLoop(cvertices.get(), count);
+	b2Assert(vertices.size() >= 3);
+	self.CreateLoop(&vertices[0], (int32)vertices.size());
 }
 
 
-void b2ChainShape_CreateChain(b2ChainShape& self, object vertices)
+void b2ChainShape_CreateChain(b2ChainShape& self, const b2Vec2List& vertices)
 {
-	using namespace boost::python;
-
-	int32 count;
-	b2Vec2ArrayRef cvertices;
-
-	count = (int32)len(vertices);
-	b2Assert(len(vertices) >= 2);
-	cvertices.reset(new b2Vec2[count]);
-
-	ListToArray(cvertices.get(), vertices, count);
-	self.CreateChain(cvertices.get(), count);
+	b2Assert(vertices.size() >= 2);
+	self.CreateChain(&vertices[0], (int32)vertices.size());
 }
 
 
@@ -206,7 +157,6 @@ void export_shapes()
 		.def("Set", b2PolygonShape_Set)
 		.def("SetAsBox", b2PolygonShape_SetAsBox2)
 		.def("SetAsBox", b2PolygonShape_SetAsBox4)
-		.def("SetAsBox", b2PolygonShape_SetAsBox)
 		.def("GetVertexCount", &b2PolygonShape::GetVertexCount)
 		.def("GetVertex", &b2PolygonShape::GetVertex, return_internal_reference<>())
 		.def("Validate", &b2PolygonShape::Validate)

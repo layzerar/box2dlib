@@ -5,11 +5,9 @@
  */
 
 #include "config.h"
-#include "utils.h"
-#include "convertor.h"
+#include "containers.h"
 #include <memory>
-
-using boost::python::object;
+#include <algorithm>
 
 
 /*
@@ -25,81 +23,78 @@ b2Fixture* (b2Contact::*b2Contact_GetFixtureB)() = &b2Contact::GetFixtureB;
  */
 
 
-object b2Manifold_GetPoints(b2Manifold& self)
+b2ManifoldPointList b2Manifold_GetPoints(b2Manifold& self)
 {
-	return ArrayToRefList(self.points, self.pointCount, b2_maxManifoldPoints);
+	return b2ManifoldPointList(
+			std::max(0, std::min(b2_maxManifoldPoints, self.pointCount)), *self.points);
 }
 
-void b2Manifold_SetPoints(b2Manifold& self, object points)
+void b2Manifold_SetPoints(b2Manifold& self, const b2ManifoldPointList& points)
 {
-	int32 count;
-
-	self.pointCount = 0;
-	count = (int32)ListToArray(self.points, points, b2_maxManifoldPoints);
-	if (count > 0)
-	{
-		self.pointCount = count;
-	}
+	b2Assert(points.size() <= b2_maxManifoldPoints);
+	if (points.empty())
+		return;
+	memcpy(self.points, &points[0], sizeof(points[0]) * points.size());
+	self.pointCount = (int32)points.size();
 }
 
-object b2WorldManifold_GetPoints(b2WorldManifold& self)
+b2Vec2List b2WorldManifold_GetPoints(b2WorldManifold& self)
 {
-	return ArrayToRefList(self.points, b2_maxManifoldPoints, b2_maxManifoldPoints);
+	return b2Vec2List(self.points, self.points + b2_maxManifoldPoints);
+	//return b2Vec2List(b2_maxManifoldPoints, *self.points);
 }
 
-void b2WorldManifold_SetPoints(b2WorldManifold& self, object points)
+void b2WorldManifold_SetPoints(b2WorldManifold& self, const b2Vec2List& points)
 {
-	ListToArray(self.points, points, b2_maxManifoldPoints);
+	b2Assert(points.size() <= b2_maxManifoldPoints);
+	if (points.empty())
+		return;
+	memcpy(self.points, &points[0], sizeof(points[0]) * points.size());
 }
 
-object b2ContactImpulse_GetNormalImpulses(b2ContactImpulse& self)
+b2Float32List b2ContactImpulse_GetNormalImpulses(b2ContactImpulse& self)
 {
-	return ArrayToList(self.normalImpulses, self.count, b2_maxManifoldPoints);
+	int32 count = std::max(0, std::min(b2_maxManifoldPoints, self.count));
+	return b2Float32List(self.normalImpulses, self.normalImpulses + count);
 }
 
-object b2ContactImpulse_GetTangentImpulses(b2ContactImpulse& self)
+b2Float32List b2ContactImpulse_GetTangentImpulses(b2ContactImpulse& self)
 {
-	return ArrayToList(self.tangentImpulses, self.count, b2_maxManifoldPoints);
+	int32 count = std::max(0, std::min(b2_maxManifoldPoints, self.count));
+	return b2Float32List(self.tangentImpulses, self.tangentImpulses + count);
 }
 
-bool b2ContactImpulse_Set(b2ContactImpulse& self, object normalImpulses, object tangentImpulses)
+bool b2ContactImpulse_Set(b2ContactImpulse& self,
+		const b2Float32List& normalImpulses, const b2Float32List& tangentImpulses)
 {
-	ssize_t count1, count2;
+	b2Assert(normalImpulses.size() <= b2_maxManifoldPoints);
+	b2Assert(normalImpulses.size() == tangentImpulses.size());
 
-	count1 = len(normalImpulses);
-	count2 = len(tangentImpulses);
-	if ((count1 != count2) || (count1 > b2_maxManifoldPoints))
+	if (normalImpulses.empty())
 		return false;
-	int32 len1, len2;
-
-	self.count = 0;
-	len1 = (int32)ListToArray(self.normalImpulses, normalImpulses, b2_maxManifoldPoints);
-	len2 = (int32)ListToArray(self.tangentImpulses, tangentImpulses, b2_maxManifoldPoints);
-
-	if (len1 != len2)
-		return false;
-	self.count = len1;
+	int32 count = (int32)normalImpulses.size();
+	memcpy(self.normalImpulses, &normalImpulses[0], sizeof(normalImpulses[0]) * count);
+	memcpy(self.tangentImpulses, &tangentImpulses[0], sizeof(tangentImpulses[0]) * count);
+	self.count = count;
 	return true;
 }
 
-b2WorldManifold* b2Contact_GetWorldManifold(b2Contact& self)
+b2WorldManifold b2Contact_GetWorldManifold(b2Contact& self)
 {
-	std::auto_ptr<b2WorldManifold> wm(new b2WorldManifold);
+	b2WorldManifold manifold;
 
-	self.GetWorldManifold(wm.get());
-	return wm.release();
+	self.GetWorldManifold(&manifold);
+	return manifold;
 }
 
-object b2GetPointStates_W(const b2Manifold* manifold1, const b2Manifold* manifold2)
+b2PointStateListPair b2GetPointStates_W(const b2Manifold* manifold1, const b2Manifold* manifold2)
 {
-	b2PointState cstate1[b2_maxManifoldPoints];
-	b2PointState cstate2[b2_maxManifoldPoints];
+	b2PointStateList state1(b2_maxManifoldPoints);
+	b2PointStateList state2(b2_maxManifoldPoints);
 
-	b2GetPointStates(cstate1, cstate2, manifold1, manifold2);
-	object state1 = ArrayToList(cstate1, b2_maxManifoldPoints, b2_maxManifoldPoints);
-	object state2 = ArrayToList(cstate2, b2_maxManifoldPoints, b2_maxManifoldPoints);
+	b2GetPointStates(&state1[0], &state2[0], manifold1, manifold2);
 
-	return make_tuple(state1, state2);
+	return b2PointStateListPair(state1, state2);
 }
 
 
@@ -167,7 +162,7 @@ void export_contact()
 
 	class_<b2Contact, boost::noncopyable, b2Contact*>("b2Contact", no_init)
 		.def("GetManifold", b2Contact_GetManifold, return_internal_reference<>())
-		.def("GetWorldManifold", b2Contact_GetWorldManifold, return_value_policy<manage_new_object>())
+		.def("GetWorldManifold", b2Contact_GetWorldManifold)
 		.def("IsTouching", &b2Contact::IsTouching)
 		.def("SetEnabled", &b2Contact::SetEnabled)
 		.def("IsEnabled", &b2Contact::IsEnabled)
@@ -185,7 +180,7 @@ void export_contact()
 		.def("ResetRestitution", &b2Contact::ResetRestitution)
 		.def("Evaluate", &b2Contact::Evaluate)
 		.add_property("manifold", make_function(b2Contact_GetManifold, return_internal_reference<>()))
-		.add_property("worldManifold", make_function(b2Contact_GetWorldManifold, return_value_policy<manage_new_object>()))
+		.add_property("worldManifold", b2Contact_GetWorldManifold)
 		.add_property("touching", &b2Contact::IsTouching)
 		.add_property("enabled", &b2Contact::IsEnabled, &b2Contact::SetEnabled)
 		.add_property("fixtureA", make_function(b2Contact_GetFixtureA, return_internal_reference<>()))
@@ -199,6 +194,5 @@ void export_contact()
 
 	def("b2GetPointStates", b2GetPointStates_W);
 
-	to_python_converter<b2ContactList, vector_to_list_ref_converter<b2Contact*> >();
 }
 

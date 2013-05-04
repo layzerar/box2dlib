@@ -5,9 +5,7 @@
  */
 
 #include "config.h"
-#include "utils.h"
-#include "convertor.h"
-#include <memory>
+#include "exc.h"
 
 
 using boost::python::object;
@@ -407,7 +405,5 @@ void export_math()
 
 	scope().attr("b2Vec2_zero") = b2Vec2_zero;
 
-	b2vec2_from_seq_convertor();
-	b2vec3_from_seq_convertor();
 }
 

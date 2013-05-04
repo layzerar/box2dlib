@@ -5,8 +5,7 @@
  */
 
 #include "config.h"
-#include "utils.h"
-#include "convertor.h"
+#include "exc.h"
 
 
 using boost::python::object;
@@ -129,5 +128,4 @@ void export_misc()
 	scope().attr("FLT_EPSILON") = b2_epsilon;
 	scope().attr("PI") = b2_pi;
 
-	b2Color_from_seq_convertor();
 }

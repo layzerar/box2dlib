@@ -10,6 +10,7 @@
 #include "config.h"
 #include <list>
 #include <vector>
+#include <utility>
 
 namespace converter = boost::python::converter;
 
@@ -37,6 +38,16 @@ struct vector_to_list_converter {
 		FOREACH(const T& e, v)
 			pylist.append(e);
 		return incref(pylist.ptr());
+	}
+};
+
+template<class T1, class T2>
+struct pair_to_tuple_converter {
+	static PyObject* convert(const std::pair<T1, T2>& pair) {
+		using boost::python::incref;
+		using boost::python::make_tuple;
+
+		return incref(make_tuple(pair.first, pair.second).ptr());
 	}
 };
 
@@ -185,8 +196,8 @@ struct b2vec3_from_seq_convertor {
 	}
 };
 
-struct b2Color_from_seq_convertor {
-	b2Color_from_seq_convertor() {
+struct b2color_from_seq_convertor {
+	b2color_from_seq_convertor() {
 		using boost::python::type_id;
 		converter::registry::push_back(&convertible, &construct, type_id<b2Color>());
 	}

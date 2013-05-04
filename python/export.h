@@ -13,7 +13,8 @@ extern void export_bodyfixture();
 extern void export_shapes();
 extern void export_joints();
 extern void export_world();
-extern void export_except();
 extern void export_misc();
+extern void export_containers();
+extern void export_except();
 
 #endif /* EXPORT_H_ */

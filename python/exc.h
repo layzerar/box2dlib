@@ -8,6 +8,12 @@
 #define EXC_H_
 
 
+inline void IndexError()
+{
+	using boost::python::throw_error_already_set;
+	PyErr_SetString(PyExc_IndexError, "Index out of range");
+	throw_error_already_set();
+}
 
 
 #endif /* EXC_H_ */

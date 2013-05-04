@@ -4,10 +4,10 @@
  * @author: zl
  */
 
-#include "world.h"
-#include "utils.h"
-#include "userdata.h"
 #include "config.h"
+#include "world.h"
+#include "userdata.h"
+#include "containers.h"
 
 using boost::ref;
 
@@ -128,7 +128,7 @@ public:
 	void SayGoodbye(b2Fixture* fixture);
 };
 
-void b2DestructionListener_W::SayGoodbye( b2Joint* joint )
+void b2DestructionListener_W::SayGoodbye(b2Joint* joint)
 {
 	try
 	{
@@ -141,7 +141,7 @@ void b2DestructionListener_W::SayGoodbye( b2Joint* joint )
 	}
 }
 
-void b2DestructionListener_W::SayGoodbye( b2Fixture* fixture )
+void b2DestructionListener_W::SayGoodbye(b2Fixture* fixture)
 {
 	try
 	{
@@ -162,7 +162,7 @@ public:
 	bool ShouldCollideDefault(b2Fixture* fixtureA, b2Fixture* fixtureB);
 };
 
-bool b2ContactFilter_W::ShouldCollide( b2Fixture* fixtureA, b2Fixture* fixtureB )
+bool b2ContactFilter_W::ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB)
 {
 	override func = this->get_override("ShouldCollide");
 	if (func)
@@ -183,7 +183,7 @@ bool b2ContactFilter_W::ShouldCollide( b2Fixture* fixtureA, b2Fixture* fixtureB 
 	return b2ContactFilter::ShouldCollide(fixtureA, fixtureB);
 }
 
-bool b2ContactFilter_W::ShouldCollideDefault( b2Fixture* fixtureA, b2Fixture* fixtureB )
+bool b2ContactFilter_W::ShouldCollideDefault(b2Fixture* fixtureA, b2Fixture* fixtureB)
 {
 	return b2ContactFilter::ShouldCollide(fixtureA, fixtureB);
 }
@@ -202,7 +202,7 @@ public:
 	void PostSolveDefault(b2Contact* contact, const b2ContactImpulse* impulse);
 };
 
-void b2ContactListener_W::BeginContact( b2Contact* contact )
+void b2ContactListener_W::BeginContact(b2Contact* contact)
 {
 	override func = this->get_override("BeginContact");
 	if (func)
@@ -223,12 +223,12 @@ void b2ContactListener_W::BeginContact( b2Contact* contact )
 	}
 }
 
-void b2ContactListener_W::BeginContactDefault( b2Contact* contact )
+void b2ContactListener_W::BeginContactDefault(b2Contact* contact)
 {
 	b2ContactListener::BeginContact(contact);
 }
 
-void b2ContactListener_W::EndContact( b2Contact* contact )
+void b2ContactListener_W::EndContact(b2Contact* contact)
 {
 	override func = this->get_override("EndContact");
 	if (func)
@@ -249,12 +249,12 @@ void b2ContactListener_W::EndContact( b2Contact* contact )
 	}
 }
 
-void b2ContactListener_W::EndContactDefault( b2Contact* contact )
+void b2ContactListener_W::EndContactDefault(b2Contact* contact)
 {
 	b2ContactListener::EndContact(contact);
 }
 
-void b2ContactListener_W::PreSolve( b2Contact* contact, const b2Manifold* oldManifold )
+void b2ContactListener_W::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 {
 	override func = this->get_override("PreSolve");
 	if (func)
@@ -275,12 +275,12 @@ void b2ContactListener_W::PreSolve( b2Contact* contact, const b2Manifold* oldMan
 	}
 }
 
-void b2ContactListener_W::PreSolveDefault( b2Contact* contact, const b2Manifold* oldManifold )
+void b2ContactListener_W::PreSolveDefault(b2Contact* contact, const b2Manifold* oldManifold)
 {
 	b2ContactListener::PreSolve(contact, oldManifold);
 }
 
-void b2ContactListener_W::PostSolve( b2Contact* contact, const b2ContactImpulse* impulse )
+void b2ContactListener_W::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 {
 	override func = this->get_override("PostSolve");
 	if (func)
@@ -301,7 +301,7 @@ void b2ContactListener_W::PostSolve( b2Contact* contact, const b2ContactImpulse*
 	}
 }
 
-void b2ContactListener_W::PostSolveDefault( b2Contact* contact, const b2ContactImpulse* impulse )
+void b2ContactListener_W::PostSolveDefault(b2Contact* contact, const b2ContactImpulse* impulse)
 {
 	b2ContactListener::PostSolve(contact, impulse);
 }
@@ -327,12 +327,12 @@ public:
 	void DrawTransform(const b2Transform& xf);
 };
 
-void b2Draw_W::DrawPolygon( const b2Vec2* vertices, int32 vertexCount, const b2Color& color )
+void b2Draw_W::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
 {
-	object v = ArrayToList(vertices, vertexCount, vertexCount);
+	const b2Vec2List v(vertices, vertices + vertexCount);
 	try
 	{
-		this->get_override("DrawPolygon")(v, color);
+		this->get_override("DrawPolygon")(&v, color);
 	}
 	catch (const error_already_set&)
 	{
@@ -341,12 +341,12 @@ void b2Draw_W::DrawPolygon( const b2Vec2* vertices, int32 vertexCount, const b2C
 	}
 }
 
-void b2Draw_W::DrawSolidPolygon( const b2Vec2* vertices, int32 vertexCount, const b2Color& color )
+void b2Draw_W::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
 {
-	object v = ArrayToList(vertices, vertexCount, vertexCount);
+	const b2Vec2List v(vertices, vertices + vertexCount);
 	try
 	{
-		this->get_override("DrawSolidPolygon")(v, color);
+		this->get_override("DrawSolidPolygon")(&v, color);
 	}
 	catch (const error_already_set&)
 	{
@@ -355,7 +355,7 @@ void b2Draw_W::DrawSolidPolygon( const b2Vec2* vertices, int32 vertexCount, cons
 	}
 }
 
-void b2Draw_W::DrawCircle( const b2Vec2& center, float32 radius, const b2Color& color )
+void b2Draw_W::DrawCircle(const b2Vec2& center, float32 radius, const b2Color& color)
 {
 	try
 	{
@@ -368,7 +368,7 @@ void b2Draw_W::DrawCircle( const b2Vec2& center, float32 radius, const b2Color& 
 	}
 }
 
-void b2Draw_W::DrawSolidCircle( const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color )
+void b2Draw_W::DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color)
 {
 	try
 	{
@@ -381,7 +381,7 @@ void b2Draw_W::DrawSolidCircle( const b2Vec2& center, float32 radius, const b2Ve
 	}
 }
 
-void b2Draw_W::DrawSegment( const b2Vec2& p1, const b2Vec2& p2, const b2Color& color )
+void b2Draw_W::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
 {
 	try
 	{
@@ -394,7 +394,7 @@ void b2Draw_W::DrawSegment( const b2Vec2& p1, const b2Vec2& p2, const b2Color& c
 	}
 }
 
-void b2Draw_W::DrawTransform( const b2Transform& xf )
+void b2Draw_W::DrawTransform(const b2Transform& xf)
 {
 	try
 	{
@@ -414,7 +414,7 @@ public:
 	bool ReportFixture(b2Fixture* fixture);
 };
 
-bool b2QueryCallback_W::ReportFixture( b2Fixture* fixture )
+bool b2QueryCallback_W::ReportFixture(b2Fixture* fixture)
 {
 	try
 	{
@@ -437,7 +437,7 @@ public:
 	float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction);
 };
 
-float32 b2RayCastCallback_W::ReportFixture( b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction )
+float32 b2RayCastCallback_W::ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction)
 {
 	try
 	{
@@ -454,7 +454,7 @@ float32 b2RayCastCallback_W::ReportFixture( b2Fixture* fixture, const b2Vec2& po
 }
 
 
-b2World_W::b2World_W( PyObject* self, const b2Vec2& gravity): b2World(gravity), self(self)
+b2World_W::b2World_W(PyObject* self, const b2Vec2& gravity): b2World(gravity), self(self)
 {
 }
 

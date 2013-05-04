@@ -5,9 +5,7 @@
  */
 
 #include "config.h"
-#include "utils.h"
 #include "userdata.h"
-#include "convertor.h"
 
 using boost::python::object;
 
@@ -379,7 +377,6 @@ static void export_jointobj()
 		.add_property("motorTorque", &b2WheelJoint::GetMotorTorque)
 	;
 
-	to_python_converter<b2JointList, vector_to_list_ref_converter<b2Joint*> >();
 }
 
 

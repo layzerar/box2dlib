@@ -5,10 +5,9 @@
  */
 
 #include "config.h"
-#include "utils.h"
 #include "userdata.h"
+#include "containers.h"
 #include "world.h"
-#include "convertor.h"
 
 
 /*
@@ -110,7 +109,6 @@ static void export_fixture()
 			&b2Fixture::SetFilterData)
 	;
 
-	to_python_converter<b2FixtureList, vector_to_list_ref_converter<b2Fixture*> >();
 }
 
 
@@ -323,7 +321,6 @@ static void export_body()
 		.add_property("userData", b2Body_GetUserData, b2Body_SetUserData)
 	;
 
-	to_python_converter<b2BodyList, vector_to_list_ref_converter<b2Body*> >();
 }
 
 

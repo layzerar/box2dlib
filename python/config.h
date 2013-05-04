@@ -7,10 +7,9 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#define MODULE_NAME _box2d
 #define EXPORT_B2DEBUGBREAK
 
-// define the max vertices for converter
-#define b2_maxArrayCount 1024
 
 #define BOOST_PYTHON_STATIC_LIB
 #include <boost/python.hpp>
