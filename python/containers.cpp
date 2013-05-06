@@ -26,5 +26,9 @@ void export_containers()
 	b2vec2_from_seq_convertor();
 	b2vec3_from_seq_convertor();
 	b2color_from_seq_convertor();
+	vector_from_seq_converter<float32>();
+	vector_from_seq_converter<b2Vec2>();
+	vector_from_seq_converter<b2ManifoldPoint>();
+
 }
 
