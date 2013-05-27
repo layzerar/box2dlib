@@ -5,7 +5,16 @@
  */
 
 #include "config.h"
-#include "export.h"
+
+extern void export_math();
+extern void export_contact();
+extern void export_bodyfixture();
+extern void export_shapes();
+extern void export_joints();
+extern void export_world();
+extern void export_misc();
+extern void export_containers();
+extern void export_except();
 
 
 BOOST_PYTHON_MODULE(MODULE_NAME)

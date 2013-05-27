@@ -127,6 +127,13 @@ b2Vec2* b2Vec2__init(object v)
 	return new b2Vec2(extract<float32>(v[0]), extract<float32>(v[1]));
 }
 
+object b2Vec2__str(b2Vec2& self)
+{
+	using boost::format;
+	using boost::python::str;
+	return str((format("b2Vec2(%.2f, %.2f)") % self.x % self.y).str());
+}
+
 object b2Vec2__iter(b2Vec2& self)
 {
 	using boost::python::make_tuple;
@@ -164,6 +171,13 @@ b2Vec3* b2Vec3__init(object v)
 	return new b2Vec3(extract<float32>(v[0]), extract<float32>(v[1]), extract<float32>(v[2]));
 }
 
+object b2Vec3__str(b2Vec3& self)
+{
+	using boost::format;
+	using boost::python::str;
+	return str((format("b2Vec3(%.2f, %.2f, %.2f)") % self.x % self.y % self.z).str());
+}
+
 object b2Vec3__iter(b2Vec3& self)
 {
 	using boost::python::make_tuple;
@@ -192,6 +206,30 @@ void b2Vec3__setitem(b2Vec3& self, int32 index, float32 v)
 		index += 3;
 	}
 	(&self.x)[index] = v;
+}
+
+object b2Mat22__str(b2Mat22& self)
+{
+	using boost::format;
+	using boost::python::str;
+	return str((format("b2Mat22([%.2f, %.2f; %.2f, %.2f])") % 
+		self.ex.x % self.ey.x % self.ex.y % self.ey.y).str());
+}
+
+object b2Mat33__str(b2Mat33& self)
+{
+	using boost::format;
+	using boost::python::str;
+	return str((format("b2Mat33([%.2f, %.2f, %.2f; %.2f, %.2f, %.2f; %.2f, %.2f, %.2f])") %
+		self.ex.x % self.ey.x % self.ez.x % self.ex.y % self.ey.y % self.ez.y % self.ex.z % self.ey.z % self.ez.z).str());
+}
+
+object b2AABB__str(b2AABB& self)
+{
+	using boost::format;
+	using boost::python::str;
+	return str((format("b2AABB([%.2f, %.2f], [%.2f, %.2f])") % 
+		self.lowerBound.x % self.lowerBound.y % self.upperBound.x % self.upperBound.y).str());
 }
 
 bool b2AABB_ContainsV(b2AABB& self, const b2Vec2& point)
@@ -241,6 +279,8 @@ void export_math()
 		.def(self /= float32())
 		.def(float32() * self)
 		.def(float32() / self)
+		.def("__str__", &b2Vec2__str)
+		.def("__repr__", &b2Vec2__str)
 	;
 
 	class_<b2Vec3>("b2Vec3")
@@ -269,6 +309,8 @@ void export_math()
 		.def(self /= float32())
 		.def(float32() * self)
 		.def(float32() / self)
+		.def("__str__", &b2Vec3__str)
+		.def("__repr__", &b2Vec3__str)
 	;
 
 	class_<b2Mat22>("b2Mat22")
@@ -285,6 +327,8 @@ void export_math()
 		.def_readwrite("col1", &b2Mat22::ex)
 		.def_readwrite("col2", &b2Mat22::ey)
 		.def(self + other<b2Mat22>())
+		.def("__str__", &b2Mat22__str)
+		.def("__repr__", &b2Mat22__str)
 	;
 
 	class_<b2Mat33>("b2Mat33")
@@ -302,6 +346,8 @@ void export_math()
 		.def_readwrite("col1", &b2Mat33::ex)
 		.def_readwrite("col2", &b2Mat33::ey)
 		.def_readwrite("col3", &b2Mat33::ez)
+		.def("__str__", &b2Mat33__str)
+		.def("__repr__", &b2Mat33__str)
 	;
 
 	class_<b2Rot>("b2Rot")
@@ -365,6 +411,8 @@ void export_math()
 		.def_readwrite("upperBound", &b2AABB::upperBound)
 		.def("__contains__", &b2AABB::Contains)
 		.def("__contains__", b2AABB_ContainsV)
+		.def("__str__", &b2AABB__str)
+		.def("__repr__", &b2AABB__str)
 	;
 
 	def("b2Cross", b2CrossV2);

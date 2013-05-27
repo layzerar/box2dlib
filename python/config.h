@@ -13,6 +13,7 @@
 
 #define BOOST_PYTHON_STATIC_LIB
 #include <boost/python.hpp>
+#include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #ifndef FOREACH
 #define FOREACH BOOST_FOREACH

@@ -209,7 +209,9 @@ struct b2Mat22
 	b2Mat22(const b2Vec2& c1, const b2Vec2& c2) : ex(c1), ey(c2) {}
 
 	/// Construct this matrix using scalars.
-	b2Mat22(float32 a11, float32 a12, float32 a21, float32 a22) : ex(a11, a21), ey(a12, a12) {}
+	b2Mat22(float32 a11, float32 a12,
+			float32 a21, float32 a22)
+		: ex(a11, a21), ey(a12, a22) {}
 
 	/// Initialize this matrix using columns.
 	void Set(const b2Vec2& c1, const b2Vec2& c2)
