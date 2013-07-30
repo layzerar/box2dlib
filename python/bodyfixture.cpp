@@ -159,7 +159,7 @@ void b2Body_DestroyFixture(b2Body& self, b2Fixture* fixture)
 	b2Assert(self.GetWorld()->IsLocked() == false);
 	b2Assert(fixture != NULL && fixture->GetBody() == &self);
 
-	b2Func_ClearUserData(*fixture);
+	b2Cls_ClearUserData<b2Fixture> ctx(fixture);
 	self.DestroyFixture(fixture);
 }
 

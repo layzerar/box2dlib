@@ -45,24 +45,8 @@ void b2World_DestroyBody(b2World& self, b2Body* body)
 {
 	b2Assert(self.GetBodyCount() > 0);
 	b2Assert(self.IsLocked() == false);
-	b2Fixture* fixture;
-	b2JointEdge* jedge;
 
-	fixture = body->GetFixtureList();
-	while (fixture != NULL)
-	{
-		b2Func_ClearUserData(*fixture);
-		fixture = fixture->GetNext();
-	}
-
-	jedge = body->GetJointList();
-	while (jedge != NULL)
-	{
-		b2Func_ClearUserData(*(jedge->joint));
-		jedge = jedge->next;
-	}
-
-	b2Func_ClearUserData(*body);
+	b2Cls_ClearUserDataList ctx(body);
 	self.DestroyBody(body);
 }
 
@@ -82,7 +66,7 @@ void b2World_DestroyJoint(b2World& self, b2Joint* joint)
 {
 	b2Assert(self.IsLocked() == false);
 
-	b2Func_ClearUserData(*joint);
+	b2Cls_ClearUserData<b2Joint> ctx(joint);
 	self.DestroyJoint(joint);
 }
 
