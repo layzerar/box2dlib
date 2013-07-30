@@ -45,6 +45,22 @@ void b2World_DestroyBody(b2World& self, b2Body* body)
 {
 	b2Assert(self.GetBodyCount() > 0);
 	b2Assert(self.IsLocked() == false);
+	b2Fixture* fixture;
+	b2JointEdge* jedge;
+
+	fixture = body->GetFixtureList();
+	while (fixture != NULL)
+	{
+		b2Func_ClearUserData(*fixture);
+		fixture = fixture->GetNext();
+	}
+
+	jedge = body->GetJointList();
+	while (jedge != NULL)
+	{
+		b2Func_ClearUserData(*(jedge->joint));
+		jedge = jedge->next;
+	}
 
 	b2Func_ClearUserData(*body);
 	self.DestroyBody(body);
@@ -110,6 +126,34 @@ b2ContactList b2World_GetContactList(b2World& self)
 		ptr = ptr->GetNext();
 	}
 	return list;
+}
+
+void b2World__del(b2World& self)
+{
+	b2Body* body;
+	b2Joint* joint;
+	b2Fixture* fixture;
+
+	body = self.GetBodyList();
+	while (body != NULL)
+	{
+		fixture = body->GetFixtureList();
+		while (fixture != NULL)
+		{
+			b2Func_ClearUserData(*fixture);
+			fixture = fixture->GetNext();
+		}
+
+		b2Func_ClearUserData(*body);
+		body = body->GetNext();
+	}
+
+	joint = self.GetJointList();
+	while (joint != NULL)
+	{
+		b2Func_ClearUserData(*joint);
+		joint = joint->GetNext();
+	}
 }
 
 
@@ -563,6 +607,7 @@ void export_world()
 		.def("SetAutoClearForces", &b2World::SetAutoClearForces)
 		.def("GetAutoClearForces", &b2World::GetAutoClearForces)
 		.def("GetProfile", &b2World::GetProfile, return_value_policy<copy_const_reference>())
+		.def("__del__", b2World__del)
 		.add_property("allowSleeping", &b2World::GetAllowSleeping, &b2World::SetAllowSleeping)
 		.add_property("warmStarting", &b2World::GetWarmStarting, &b2World::SetWarmStarting)
 		.add_property("continuousPhysics", &b2World::GetContinuousPhysics, &b2World::SetContinuousPhysics)
