@@ -92,7 +92,9 @@ struct list_from_seq_converter {
 	}
 
 	static void construct(PyObject* obj_ptr, converter::rvalue_from_python_stage1_data* data){
+		using boost::python::handle;
 		using boost::python::extract;
+
 		void* storage = ((converter::rvalue_from_python_storage<std::list<T> >*)(data))->storage.bytes;
 		new (storage) std::list<T>();
 		std::vector<T>* v = (std::list<T>*)(storage);
@@ -101,7 +103,8 @@ struct list_from_seq_converter {
 			abort();
 		v->reserve(vlen);
 		for(int i = 0; i < vlen; i++) {
-			v->push_back(extract<T>(PySequence_GetItem(obj_ptr, i)));
+			handle<> item(PySequence_GetItem(obj_ptr, i));
+			v->push_back(extract<T>(item.get()));
 		}
 		data->convertible = storage;
 	}
@@ -122,7 +125,9 @@ struct vector_from_seq_converter {
 	}
 
 	static void construct(PyObject* obj_ptr, converter::rvalue_from_python_stage1_data* data){
+		using boost::python::handle;
 		using boost::python::extract;
+
 		void* storage = ((converter::rvalue_from_python_storage<std::vector<T> >*)(data))->storage.bytes;
 		new (storage) std::vector<T>();
 		std::vector<T>* v = (std::vector<T>*)(storage);
@@ -131,7 +136,8 @@ struct vector_from_seq_converter {
 			abort();
 		v->reserve(vlen);
 		for(int i = 0; i < vlen; i++) {
-			v->push_back(extract<T>(PySequence_GetItem(obj_ptr, i)));
+			handle<> item(PySequence_GetItem(obj_ptr, i));
+			v->push_back(extract<T>(item.get()));
 		}
 		data->convertible = storage;
 	}
@@ -153,6 +159,7 @@ struct b2vec2_from_seq_convertor {
 
 	static void construct(PyObject* obj_ptr,
 			converter::rvalue_from_python_stage1_data* data) {
+		using boost::python::handle;
 		using boost::python::extract;
 		b2Assert(PySequence_Size(obj_ptr) == 2);
 
@@ -160,8 +167,10 @@ struct b2vec2_from_seq_convertor {
 		new (storage) b2Vec2;
 		b2Vec2* v2 = (b2Vec2*) storage;
 
-		v2->x = extract<float32>(PySequence_GetItem(obj_ptr, 0));
-		v2->y = extract<float32>(PySequence_GetItem(obj_ptr, 1));
+		handle<> x(PySequence_GetItem(obj_ptr, 0));
+		handle<> y(PySequence_GetItem(obj_ptr, 1));
+		v2->x = extract<float32>(x.get());
+		v2->y = extract<float32>(y.get());
 		data->convertible = storage;
 	}
 };
@@ -182,6 +191,7 @@ struct b2vec3_from_seq_convertor {
 
 	static void construct(PyObject* obj_ptr,
 			converter::rvalue_from_python_stage1_data* data) {
+		using boost::python::handle;
 		using boost::python::extract;
 		b2Assert(PySequence_Size(obj_ptr) == 3);
 
@@ -189,9 +199,12 @@ struct b2vec3_from_seq_convertor {
 		new (storage) b2Vec3;
 		b2Vec3* v3 = (b2Vec3*) storage;
 
-		v3->x = extract<float32>(PySequence_GetItem(obj_ptr, 0));
-		v3->y = extract<float32>(PySequence_GetItem(obj_ptr, 1));
-		v3->z = extract<float32>(PySequence_GetItem(obj_ptr, 2));
+		handle<> x(PySequence_GetItem(obj_ptr, 0));
+		handle<> y(PySequence_GetItem(obj_ptr, 1));
+		handle<> z(PySequence_GetItem(obj_ptr, 2));
+		v3->x = extract<float32>(x.get());
+		v3->y = extract<float32>(y.get());
+		v3->z = extract<float32>(z.get());
 		data->convertible = storage;
 	}
 };
@@ -212,6 +225,7 @@ struct b2color_from_seq_convertor {
 
 	static void construct(PyObject* obj_ptr,
 		converter::rvalue_from_python_stage1_data* data) {
+			using boost::python::handle;
 			using boost::python::extract;
 			b2Assert(PySequence_Size(obj_ptr) == 3);
 
@@ -219,9 +233,12 @@ struct b2color_from_seq_convertor {
 			new (storage) b2Color;
 			b2Color* c3 = (b2Color*) storage;
 
-			c3->r = extract<float32>(PySequence_GetItem(obj_ptr, 0));
-			c3->g = extract<float32>(PySequence_GetItem(obj_ptr, 1));
-			c3->b = extract<float32>(PySequence_GetItem(obj_ptr, 2));
+			handle<> r(PySequence_GetItem(obj_ptr, 0));
+			handle<> g(PySequence_GetItem(obj_ptr, 1));
+			handle<> b(PySequence_GetItem(obj_ptr, 2));
+			c3->r = extract<float32>(r.get());
+			c3->g = extract<float32>(g.get());
+			c3->b = extract<float32>(b.get());
 			data->convertible = storage;
 	}
 };
