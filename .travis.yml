@@ -8,6 +8,7 @@ before_install:
   - sudo apt-get install python-dev
   - sudo apt-get install libboost-dev
   - sudo apt-get install libboost-python-dev
+  - cp -rf Box2D\(Patched\)/* Box2D/
 
 # build script
 install: python setup.py build
