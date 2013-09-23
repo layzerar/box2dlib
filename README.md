@@ -12,4 +12,4 @@ For more detail, please see http://code.google.com/p/box2d/
 
 
 ## License
-MIT License
+Zlib License
