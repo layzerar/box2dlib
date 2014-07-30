@@ -179,6 +179,7 @@ void export_shapes()
 	;
 
 	class_<b2ChainShape, bases<b2Shape>, boost::noncopyable>("b2ChainShape")
+		.def("Clear", &b2ChainShape::Clear)
 		.def("CreateLoop", b2ChainShape_CreateLoop)
 		.def("CreateChain", b2ChainShape_CreateChain)
 		.def("SetPrevVertex", &b2ChainShape::SetPrevVertex)

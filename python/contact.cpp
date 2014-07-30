@@ -52,6 +52,20 @@ void b2WorldManifold_SetPoints(b2WorldManifold& self, const b2Vec2List& points)
 	memcpy(self.points, &points[0], sizeof(points[0]) * points.size());
 }
 
+b2Float32List b2WorldManifold_GetSeparations(b2WorldManifold& self)
+{
+	return b2Float32List(self.separations, self.separations + b2_maxManifoldPoints);
+	//return b2Float32List(b2_maxManifoldPoints, *self.separations);
+}
+
+void b2WorldManifold_SetSeparations(b2WorldManifold& self, const b2Float32List& separations)
+{
+	b2Assert(separations.size() <= b2_maxManifoldPoints);
+	if (separations.empty())
+		return;
+	memcpy(self.separations, &separations[0], sizeof(separations[0]) * separations.size());
+}
+
 b2Float32List b2ContactImpulse_GetNormalImpulses(b2ContactImpulse& self)
 {
 	int32 count = std::max(0, std::min(b2_maxManifoldPoints, self.count));
@@ -151,6 +165,7 @@ void export_contact()
 		.def("Initialize", &b2WorldManifold::Initialize)
 		.def_readwrite("normal", &b2WorldManifold::normal)
 		.add_property("points", b2WorldManifold_GetPoints, b2WorldManifold_SetPoints)
+		.add_property("separations", b2WorldManifold_GetSeparations, b2WorldManifold_SetSeparations)
 	;
 
 	class_<b2ContactImpulse>("b2ContactImpulse")

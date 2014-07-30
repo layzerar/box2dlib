@@ -218,7 +218,7 @@ struct b2color_from_seq_convertor {
 	static void* convertible(PyObject* obj_ptr) {
 		if (!PySequence_Check(obj_ptr) || !PyObject_HasAttrString(obj_ptr, "__len__"))
 			return 0;
-		if (PySequence_Size(obj_ptr) != 3)
+		if (PySequence_Size(obj_ptr) != 3 && PySequence_Size(obj_ptr) != 4)
 			return 0;
 		return obj_ptr;
 	}
@@ -227,7 +227,7 @@ struct b2color_from_seq_convertor {
 		converter::rvalue_from_python_stage1_data* data) {
 			using boost::python::handle;
 			using boost::python::extract;
-			b2Assert(PySequence_Size(obj_ptr) == 3);
+			b2Assert(PySequence_Size(obj_ptr) == 3 || PySequence_Size(obj_ptr) == 4);
 
 			void* storage = ((converter::rvalue_from_python_storage<b2Color>*) (data))->storage.bytes;
 			new (storage) b2Color;
@@ -239,6 +239,12 @@ struct b2color_from_seq_convertor {
 			c3->r = extract<float32>(r.get());
 			c3->g = extract<float32>(g.get());
 			c3->b = extract<float32>(b.get());
+			if (PySequence_Size(obj_ptr) == 4) {
+				handle<> a(PySequence_GetItem(obj_ptr, 3));
+				c3->a = extract<float32>(a.get());
+			} else {
+				c3->a = 1.0f;
+			}
 			data->convertible = storage;
 	}
 };

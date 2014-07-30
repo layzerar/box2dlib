@@ -18,51 +18,51 @@ using boost::python::object;
 object b2Color__iter(b2Color& self)
 {
 	using boost::python::make_tuple;
-	return make_tuple(self.r, self.g, self.b).attr("__iter__")();
+	return make_tuple(self.r, self.g, self.b, self.a).attr("__iter__")();
 }
 
 float32 b2Color__getitem(b2Color& self, int32 index)
 {
-	if (index < -3 || index > 2) {
+	if (index < -4 || index > 3) {
 		IndexError();
 		return 0.0f;
 	}
 	if (index < 0) {
-		index += 3;
+		index += 4;
 	}
 	return (&self.r)[index];
 }
 
 void b2Color__setitem(b2Color& self, int32 index, float32 v)
 {
-	if (index < -3 || index > 2) {
+	if (index < -4 || index > 3) {
 		IndexError();
 		return;
 	}
 	if (index < 0) {
-		index += 3;
+		index += 4;
 	}
 	(&self.r)[index] = v;
 }
 
 inline b2Color operator*(const b2Color& c, float32 s)
 {
-	return b2Color(c.r * s, c.g * s, c.b * s);
+	return b2Color(c.r * s, c.g * s, c.b * s, c.a);
 }
 
 inline b2Color operator/(const b2Color& c, float32 s)
 {
-	return b2Color(c.r / s, c.g / s, c.b / s);
+	return b2Color(c.r / s, c.g / s, c.b / s, c.a);
 }
 
 inline b2Color operator*=(const b2Color& c, float32 s)
 {
-	return b2Color(c.r * s, c.g * s, c.b * s);
+	return b2Color(c.r * s, c.g * s, c.b * s, c.a);
 }
 
 inline b2Color operator/=(const b2Color& c, float32 s)
 {
-	return b2Color(c.r / s, c.g / s, c.b / s);
+	return b2Color(c.r / s, c.g / s, c.b / s, c.a);
 }
 
 
@@ -71,11 +71,12 @@ void export_misc()
 	using namespace boost::python;
 
 	class_<b2Color>("b2Color")
-		.def(init<float32, float32, float32>())
+		.def(init<float32, float32, float32, optional<float32> >())
 		.def("Set", &b2Color::Set)
 		.def_readwrite("r", &b2Color::r)
 		.def_readwrite("g", &b2Color::g)
 		.def_readwrite("b", &b2Color::b)
+		.def_readwrite("a", &b2Color::a)
 		.def("__iter__", b2Color__iter)
 		.def("__getitem__", b2Color__getitem)
 		.def("__setitem__", b2Color__setitem)
