@@ -436,8 +436,6 @@ void b2Body::SetTransform(const b2Vec2& position, float32 angle)
 	{
 		f->Synchronize(broadPhase, m_xf, m_xf);
 	}
-
-	m_world->m_contactManager.FindNewContacts();
 }
 
 void b2Body::SynchronizeFixtures()
@@ -496,6 +494,28 @@ void b2Body::SetActive(bool flag)
 		}
 		m_contactList = NULL;
 	}
+}
+
+void b2Body::SetFixedRotation(bool flag)
+{
+	bool status = (m_flags & e_fixedRotationFlag) == e_fixedRotationFlag;
+	if (status == flag)
+	{
+		return;
+	}
+
+	if (flag)
+	{
+		m_flags |= e_fixedRotationFlag;
+	}
+	else
+	{
+		m_flags &= ~e_fixedRotationFlag;
+	}
+
+	m_angularVelocity = 0.0f;
+
+	ResetMassData();
 }
 
 void b2Body::Dump()
