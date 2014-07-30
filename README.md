@@ -1,5 +1,5 @@
 ## Introduction
-[![Build Status](https://travis-ci.org/layzerar/box2dlib.png?branch=dev)](https://travis-ci.org/layzerar/box2dlib)
+[![Build Status](https://travis-ci.org/layzerar/box2dlib.png)](https://travis-ci.org/layzerar/box2dlib)
 
 Box2dlib is a python iterface of Box2D. The APIs are almost the same
 with the C++ version, and I do my best to make it compatible with
