@@ -47,13 +47,13 @@ def main():
         '.',
         'python',
         ]
-    libraries += ['boost_python']
     include_dirs += env.boost_include
     library_dirs += env.boost_library_path
     sources += findcxx('Box2D')
     sources += findcxx('python')
 
     if os.name == "posix":
+        libraries += ['boost_python']
         include_dirs += [r'/usr/local/include/', r'/usr/include/']
         library_dirs += [r'/usr/local/lib64/', r'/usr/local/lib/', r'/usr/lib64/', r'/usr/lib/']
         extra_compile_args += [
