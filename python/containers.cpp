@@ -17,11 +17,12 @@ void export_containers()
 	to_python_converter<b2ContactList, vector_to_list_ref_converter<b2Contact*> >();
 	to_python_converter<b2JointList, vector_to_list_ref_converter<b2Joint*> >();
 
-	to_python_converter<b2Float32List, vector_to_list_converter<float32> >();
 	to_python_converter<b2Vec2List, vector_to_list_converter<b2Vec2> >();
 	to_python_converter<b2PointStateList, vector_to_list_converter<b2PointState> >();
 	to_python_converter<b2ManifoldPointList, vector_to_list_converter<b2ManifoldPoint> >();
 	to_python_converter<b2PointStateListPair, pair_to_tuple_converter<b2PointStateList, b2PointStateList> >();
+
+	register_to_python_converter<b2Float32List, vector_to_list_converter<float32> >();
 
 	b2vec2_from_seq_convertor();
 	b2vec3_from_seq_convertor();

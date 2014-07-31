@@ -249,5 +249,19 @@ struct b2color_from_seq_convertor {
 	}
 };
 
+template<class T, class Conversion>
+struct register_to_python_converter {
+	register_to_python_converter() {
+		using boost::python::type_id;
+		using boost::python::to_python_converter;
+
+		const converter::registration* entry;
+		entry = converter::registry::query(type_id<T>());
+		if (entry->m_to_python == 0)
+		{
+			to_python_converter<T, Conversion>();
+		}
+	}
+};
 
 #endif /* CONVERTOR_H_ */
