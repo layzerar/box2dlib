@@ -1,35 +1,62 @@
  Box2D/Collision/Shapes/b2ChainShape.cpp |  2 ++
- Box2D/Common/b2Assert.h                 | 27 +++++++++++++++++++++
+ Box2D/Common/b2Assert.cpp               | 20 +++++++++++++++
+ Box2D/Common/b2Assert.h                 | 18 ++++++++++++++
  Box2D/Common/b2Math.h                   | 43 +++++++++++++++++++++------------
  Box2D/Common/b2Settings.h               |  5 ++++
- 4 files changed, 61 insertions(+), 16 deletions(-)
+ 5 files changed, 72 insertions(+), 16 deletions(-)
 
 diff --git a/Box2D/Collision/Shapes/b2ChainShape.cpp b/Box2D/Collision/Shapes/b2ChainShape.cpp
-index bd23346..d52ed2a 100644
+index 0c7282c..554fad0 100644
 --- a/Box2D/Collision/Shapes/b2ChainShape.cpp
 +++ b/Box2D/Collision/Shapes/b2ChainShape.cpp
-@@ -35,6 +35,7 @@ void b2ChainShape::CreateLoop(const b2Vec2* vertices, int32 count)
- 	b2Assert(count >= 3);
+@@ -47,6 +47,7 @@ void b2ChainShape::CreateLoop(const b2Vec2* vertices, int32 count)
+ 
  	m_count = count + 1;
  	m_vertices = (b2Vec2*)b2Alloc(m_count * sizeof(b2Vec2));
 +	b2Assert(m_vertices != NULL);
  	memcpy(m_vertices, vertices, count * sizeof(b2Vec2));
  	m_vertices[count] = m_vertices[0];
  	m_prevVertex = m_vertices[m_count - 2];
-@@ -49,6 +50,7 @@ void b2ChainShape::CreateChain(const b2Vec2* vertices, int32 count)
- 	b2Assert(count >= 2);
+@@ -67,6 +68,7 @@ void b2ChainShape::CreateChain(const b2Vec2* vertices, int32 count)
+ 
  	m_count = count;
  	m_vertices = (b2Vec2*)b2Alloc(count * sizeof(b2Vec2));
 +	b2Assert(m_vertices != NULL);
  	memcpy(m_vertices, vertices, m_count * sizeof(b2Vec2));
+ 
  	m_hasPrevVertex = false;
- 	m_hasNextVertex = false;
+diff --git a/Box2D/Common/b2Assert.cpp b/Box2D/Common/b2Assert.cpp
+new file mode 100644
+index 0000000..6eb7791
+--- /dev/null
++++ b/Box2D/Common/b2Assert.cpp
+@@ -0,0 +1,20 @@
++/*
++ * @summary: box2d assert
++ * @date: 2012-11-21
++ * @author: zl
++ */
++
++#include <Box2D/Common/b2Assert.h>
++
++#define BOOST_PYTHON_STATIC_LIB
++#include <boost/python.hpp>
++
++
++void _b2_assert(const char* arg1, const char* arg2, int lineno)
++{
++	using namespace boost::python;
++
++	PyErr_SetString(PyExc_AssertionError, arg1);
++	throw_error_already_set();
++}
++
 diff --git a/Box2D/Common/b2Assert.h b/Box2D/Common/b2Assert.h
 new file mode 100644
-index 0000000..d616ee0
+index 0000000..230e684
 --- /dev/null
 +++ b/Box2D/Common/b2Assert.h
-@@ -0,0 +1,27 @@
+@@ -0,0 +1,18 @@
 +/*
 + * @summary: box2d assert
 + * @date: 2012-11-21
@@ -40,28 +67,19 @@ index 0000000..d616ee0
 +#define B2ASSERT_H_
 +
 +
-+#define BOOST_PYTHON_STATIC_LIB
-+#include <boost/python.hpp>
-+
 +#undef b2Assert
 +#define b2Assert(e) ((e) ? (void)0: _b2_assert(#e, __FILE__, __LINE__))
 +
 +
-+inline void _b2_assert(const char* arg1, const char* arg2, int lineno)
-+{
-+	using namespace boost::python;
-+
-+	PyErr_SetString(PyExc_AssertionError, arg1);
-+	throw_error_already_set();
-+}
++void _b2_assert(const char* arg1, const char* arg2, int lineno);
 +
 +
 +#endif /* B2ASSERT_H_ */
 diff --git a/Box2D/Common/b2Math.h b/Box2D/Common/b2Math.h
-index 11c7070..7e4bfaf 100644
+index 755c519..5f0b4c8 100644
 --- a/Box2D/Common/b2Math.h
 +++ b/Box2D/Common/b2Math.h
-@@ -66,6 +66,9 @@ struct b2Vec2
+@@ -55,6 +55,9 @@ struct b2Vec2
  	/// Default constructor does nothing (for performance).
  	b2Vec2() {}
  
@@ -71,7 +89,7 @@ index 11c7070..7e4bfaf 100644
  	/// Construct using coordinates.
  	b2Vec2(float32 x, float32 y) : x(x), y(y) {}
  
-@@ -157,6 +160,9 @@ struct b2Vec3
+@@ -146,6 +149,9 @@ struct b2Vec3
  	/// Default constructor does nothing (for performance).
  	b2Vec3() {}
  
@@ -81,7 +99,7 @@ index 11c7070..7e4bfaf 100644
  	/// Construct using coordinates.
  	b2Vec3(float32 x, float32 y, float32 z) : x(x), y(y), z(z) {}
  
-@@ -196,19 +202,14 @@ struct b2Mat22
+@@ -185,19 +191,14 @@ struct b2Mat22
  	/// The default constructor does nothing (for performance).
  	b2Mat22() {}
  
@@ -106,7 +124,7 @@ index 11c7070..7e4bfaf 100644
  
  	/// Initialize this matrix using columns.
  	void Set(const b2Vec2& c1, const b2Vec2& c2)
-@@ -270,13 +271,17 @@ struct b2Mat33
+@@ -259,13 +260,17 @@ struct b2Mat33
  	/// The default constructor does nothing (for performance).
  	b2Mat33() {}
  
@@ -130,7 +148,7 @@ index 11c7070..7e4bfaf 100644
  
  	/// Set this matrix to all zeros.
  	void SetZero()
-@@ -311,6 +316,9 @@ struct b2Rot
+@@ -300,6 +305,9 @@ struct b2Rot
  {
  	b2Rot() {}
  
@@ -140,7 +158,7 @@ index 11c7070..7e4bfaf 100644
  	/// Initialize from an angle in radians
  	explicit b2Rot(float32 angle)
  	{
-@@ -363,6 +371,9 @@ struct b2Transform
+@@ -352,6 +360,9 @@ struct b2Transform
  	/// The default constructor does nothing.
  	b2Transform() {}
  
@@ -151,10 +169,10 @@ index 11c7070..7e4bfaf 100644
  	b2Transform(const b2Vec2& position, const b2Rot& rotation) : p(position), q(rotation) {}
  
 diff --git a/Box2D/Common/b2Settings.h b/Box2D/Common/b2Settings.h
-index 44c0eb1..e07a054 100644
+index 86f76bd..1c3713f 100644
 --- a/Box2D/Common/b2Settings.h
 +++ b/Box2D/Common/b2Settings.h
-@@ -25,6 +25,11 @@
+@@ -26,6 +26,11 @@
  #define B2_NOT_USED(x) ((void)(x))
  #define b2Assert(A) assert(A)
  
